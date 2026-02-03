@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Be My Valentine?</title>
+    <style>
+        :root {
+            --primary-pink: #FF69B4;
+            --soft-pink: #FFC0CB;
+            --yes-green: #4CAF50;
+            --no-red: #F44336;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            background: linear-gradient(135deg, var(--primary-pink), var(--soft-pink));
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Comic Sans MS', 'Arial', sans-serif;
+            overflow: hidden; /* Prevent scrolling during button evasion */
+            touch-action: none; /* Disable default touch actions */
+        }
+
+        /* Subtle heart pattern overlay */
+        body::before {
+            content: "♥";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            font-size: 2rem;
+            color: rgba(255, 255, 255, 0.1);
+            pointer-events: none;
+            z-index: 0;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            align-content: space-around;
+            opacity: 0.5;
+        }
+
+        .container {
+            z-index: 1;
+            text-align: center;
+            width: 90%;
+            max-width: 600px;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            color: white;
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+            transition: transform 0.3s ease;
+        }
+
+        .image-container {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto 30px;
+            aspect-ratio: 4/3;
+        }
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 20px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            position: relative;
+            min-height: 80px; /* Space for buttons to move */
+        }
+
+        button {
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: white;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            transition: transform 0.1s ease, background-color 0.3s;
+            font-family: inherit;
+            outline: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        button:active {
+            transform: scale(0.95);
+        }
+
+        #yesBtn {
+            background-color: var(--yes-green);
+        }
+
+        #noBtn {
+            background-color: var(--no-red);
+            position: relative; /* Starts relative, becomes absolute */
+            transition: all 0.3s ease; /* Smooth movement */
+        }
+
+        /* Celebration Animation Classes */
+        .celebrating h1 {
+            animation: pulse 1s infinite;
+        }
+
+        .celebrating img {
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        /* Heart Animation */
+        .big-heart {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            font-size: 10rem;
+            color: rgba(255, 255, 255, 0.8);
+            pointer-events: none;
+            z-index: 100;
+            opacity: 0;
+            transition: all 0.5s ease-out;
+        }
+
+        .big-heart.show {
+            transform: translate(-50%, -50%) scale(1.5);
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1 id="mainText">Will You Be My Valentine?</h1>
+        
+        <div class="image-container">
+            <!-- Initial Image: Cute Dog -->
+            <img id="mainImage" src="https://pet-health-content-media.chewy.com/wp-content/uploads/2024/09/11171429/202105shiba-inu-1214044812-scaled-1.jpg" alt="Cute dog asking to be Valentine">
+        </div>
+
+        <div class="buttons">
+            <button id="yesBtn" aria-label="Yes, be my Valentine">Yes</button>
+            <button id="noBtn" aria-label="No, reject Valentine">No</button>
+        </div>
+    </div>
+
+    <div class="big-heart">❤️</div>
+
+    <script>
+        const yesBtn = document.getElementById('yesBtn');
+        const noBtn = document.getElementById('noBtn');
+        const mainImage = document.getElementById('mainImage');
+        const mainText = document.getElementById('mainText');
+        const bigHeart = document.querySelector('.big-heart');
+        const body = document.body;
+
+        const IMAGES = {
+            initial: "https://pet-health-content-media.chewy.com/wp-content/uploads/2024/09/11171429/202105shiba-inu-1214044812-scaled-1.jpg",
+            sad: "https://i.ytimg.com/vi/huxCMJM1h8c/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLBEZ2CrNPWjKVyXAMlUWeOA0wn1vA",
+            happy: "https://as1.ftcdn.net/jpg/01/59/54/20/1000_F_159542030_CkH0uYhmQD9gPDjQ8wR6qDRzuUR8PuhS.jpg"
+        };
+
+        let isReverting = false;
+
+        // --- Logic for 'No' Button Evasion ---
+        function moveButton() {
+            // Get viewport dimensions
+            const viewportWidth = window.innerWidth;
+            const viewportHeight = window.innerHeight;
+            
+            // Get button dimensions
+            const btnWidth = noBtn.offsetWidth;
+            const btnHeight = noBtn.offsetHeight;
+
+            // Calculate safe area (keep it within screen but not covering text too much)
+            // Padding to keep away from edges
+            const padding = 20;
+
+            // Compute random positions
+            const maxLeft = viewportWidth - btnWidth - padding;
+            const maxTop = viewportHeight - btnHeight - padding;
+
+            const newLeft = Math.max(padding, Math.random() * maxLeft);
+            const newTop = Math.max(padding, Math.random() * maxTop);
+
+            // Apply new position
+            noBtn.style.position = 'absolute';
+            noBtn.style.left = `${newLeft}px`;
+            noBtn.style.top = `${newTop}px`;
+
+            // Troll Effect: Flash Sad Image
+            if (!isReverting) {
+                isReverting = true;
+                const originalSrc = mainImage.src;
+                mainImage.src = IMAGES.sad;
+                
+                // Revert back after 1.5 seconds
+                setTimeout(() => {
+                    // Only revert if we haven't already said yes
+                    if(mainText.innerText !== "Yay! You're My Valentine!") {
+                        mainImage.src = IMAGES.initial;
+                    }
+                    isReverting = false;
+                }, 1500);
+            }
+        }
+
+        // Add multiple event listeners to catch all interaction types
+        noBtn.addEventListener('mouseover', moveButton);
+        noBtn.addEventListener('click', (e) => { e.preventDefault(); moveButton(); });
+        noBtn.addEventListener('touchstart', (e) => { e.preventDefault(); moveButton(); });
+
+
+        // --- Logic for 'Yes' Button Celebration ---
+        yesBtn.addEventListener('click', () => {
+            // Update UI
+            mainText.innerText = "Yay! You're My Valentine!";
+            mainImage.src = IMAGES.happy;
+            
+            // Add animation classes
+            body.classList.add('celebrating');
+            
+            // Hide buttons
+            yesBtn.style.display = 'none';
+            noBtn.style.display = 'none';
+
+            // Show big heart
+            bigHeart.classList.add('show');
+            setTimeout(() => bigHeart.classList.remove('show'), 2000);
+
+            // Trigger Confetti
+            startConfetti();
+        });
+
+
+        // --- Confetti Implementation (Vanilla JS) ---
+        function startConfetti() {
+            const colors = ['#FF69B4', '#FFC0CB', '#FFD700', '#FFFFFF', '#4CAF50'];
+            const confettiCount = 150;
+            
+            for (let i = 0; i < confettiCount; i++) {
+                createConfettiPiece(colors);
+            }
+        }
+
+        function createConfettiPiece(colors) {
+            const confetti = document.createElement('div');
+            confetti.style.position = 'fixed';
+            confetti.style.width = Math.random() * 10 + 5 + 'px';
+            confetti.style.height = Math.random() * 5 + 5 + 'px';
+            confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+            confetti.style.top = '-10px';
+            confetti.style.left = Math.random() * 100 + 'vw';
+            confetti.style.zIndex = '999';
+            confetti.style.borderRadius = '2px';
+            confetti.style.pointerEvents = 'none'; // Don't block clicks
+
+            // Random animation properties
+            const duration = Math.random() * 3 + 2; // 2-5s
+            const delay = Math.random() * 2;
+            
+            confetti.style.transition = `top ${duration}s linear, transform ${duration}s ease-in-out`;
+            
+            document.body.appendChild(confetti);
+
+            // Force reflow
+            confetti.offsetHeight;
+
+            // Start animation
+            setTimeout(() => {
+                confetti.style.top = '110vh';
+                confetti.style.transform = `rotate(${Math.random() * 360}deg) translateX(${Math.random() * 100 - 50}px)`;
+            }, delay * 100);
+
+            // Cleanup
+            setTimeout(() => {
+                confetti.remove();
+            }, (duration + delay) * 1000);
+        }
+    </script>
+</body>
+</html>
