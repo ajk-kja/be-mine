@@ -47,6 +47,16 @@ The site is a single `index.html` file. To customize:
 - Nginx Alpine - Production server
 - No build step required
 
+## Production Deployment
+
+This app is deployed via the [public-gateway](https://github.com/ajk-kja/public-gateway) stack:
+
+- **URL:** https://kiki.ilgailu.com
+- **Stack:** `~/public-gateway` on VPS
+- **Routing:** Cloudflare → Caddy → nginx → be-mine container
+
+The `docker-compose.yml` in this repo is for standalone/development use. For production, the app is served through the public-gateway stack.
+
 ## License
 
 MIT
